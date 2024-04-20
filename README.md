@@ -1,5 +1,5 @@
 <h1 align="center">
-  QPayClient
+  QPay Python
 </h1>
 
 <p align="center">
