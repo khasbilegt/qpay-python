@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "qpay"
+name = "qpay-python"
 version = "0.0.1"
 description = "QPay v2 SDK client for Python projects"
 authors = ["khasbilegt <khasbilegt.ts@gmail.com>"]
@@ -19,6 +19,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Build Tools",
     "Typing :: Typed"
+]
+packages = [
+    { include = "qpay"},
 ]
 
 [tool.poetry.dependencies]
