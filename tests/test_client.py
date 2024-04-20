@@ -57,7 +57,7 @@ def test_invoice_create(requests_mock, client):
         ],
     }
 
-    def json_callback(request, context):
+    def json_callback(request, _):
         body = json.loads(request.body)
         assert request.headers["Authorization"] == "Bearer ACCESS_TOKEN"
         for key in request_body:

@@ -4,8 +4,7 @@ from urllib.parse import urljoin
 
 import pytest
 
-from qpay.auth import QPayAuth
-from qpay.exceptions import QPayException
+from qpay import QPayAuth, QPayException
 
 HOST = "https://merchant.qpay.mn/v2/"
 AUTH_HOST = urljoin(HOST, "auth/")
