@@ -1,22 +1,23 @@
 import logging
 import threading
 from datetime import datetime, timedelta
-from typing import Callable, NamedTuple, Optional
+from typing import Callable, Optional
 from urllib.parse import urljoin
 
 import requests
+from pydantic import BaseModel
 
 from .exceptions import QPayException
 
 logger = logging.getLogger(__name__)
 
 
-class AccessToken(NamedTuple):
+class AccessToken(BaseModel):
     token: str
     expires: datetime
 
 
-class RefreshToken(NamedTuple):
+class RefreshToken(BaseModel):
     token: str
     expires: datetime
 
@@ -62,11 +63,12 @@ class QPayAuth(requests.auth.AuthBase):
             r.raise_for_status()
             token = r.json()
             access_token = AccessToken(
-                token["access_token"], now + timedelta(seconds=token["expires_in"])
+                token=token["access_token"],
+                expires=now + timedelta(seconds=token["expires_in"]),
             )
             refresh_token = RefreshToken(
-                token["refresh_token"],
-                now + timedelta(seconds=token["refresh_expires_in"]),
+                token=token["refresh_token"],
+                expires=now + timedelta(seconds=token["refresh_expires_in"]),
             )
             return (access_token, refresh_token)
         except requests.HTTPError as exc:
