@@ -59,7 +59,9 @@ class QPayClient(Singleton):
             return response.json()
         except requests.HTTPError as exc:
             logger.exception(exc)
-            raise QPayException(request=exc.request, response=exc.response) from exc
+            raise QPayException(
+                exc.response.json(), request=exc.request, response=exc.response
+            ) from exc
 
     def invoice_create(self, json: dict) -> Invoice:
         payload = CreateInvoicePayload(**json)

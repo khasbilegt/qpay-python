@@ -4,10 +4,14 @@ import requests
 class QPayException(Exception):
     def __init__(
         self,
-        *args: object,
+        message: str,
         request: requests.Request | requests.PreparedRequest | None,
         response: requests.Response | None,
     ) -> None:
-        super().__init__(args)
+        self.message = message
         self.request = request
         self.response = response
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return f"""QPayException(message="{self.message}")"""
