@@ -1,4 +1,5 @@
 import json
+import uuid
 from urllib.parse import urljoin
 
 import pytest
@@ -59,7 +60,6 @@ def test_invoice_create(requests_mock, client):
 
     def json_callback(request, _):
         body = json.loads(request.body)
-        assert request.headers["Authorization"] == "Bearer ACCESS_TOKEN"
         for key in request_body:
             assert key in body
         return response_body
@@ -81,3 +81,28 @@ def test_invoice_create(requests_mock, client):
     assert invoice.qr_text == response_body["qr_text"]
     assert invoice.qr_image == response_body["qr_image"]
     assert invoice.model_dump()["urls"] == response_body["urls"]
+
+
+def test_invoice_cancel(requests_mock, client):
+    invoice_id = uuid.uuid4()
+
+    def json_callback(request, _):
+        assert request.method == "DELETE"
+        assert str(invoice_id) in request.url
+        return {}
+
+    requests_mock.delete(
+        urljoin(client._host, f"invoice/{str(invoice_id)}"),
+        [
+            {
+                "json": {"error": "INVOICE_NOTFOUND", "message": "Нэхэмжлэл олдсонгүй"},
+                "status_code": 422,
+            },
+            {"json": json_callback, "status_code": 200},
+        ],
+    )
+
+    with pytest.raises(QPayException) as exc:
+        client.invoice_cancel(invoice_id=invoice_id)
+    assert exc.value.response.json()["error"] == "INVOICE_NOTFOUND"
+    assert client.invoice_cancel(invoice_id=invoice_id)

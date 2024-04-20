@@ -32,8 +32,9 @@ class CreateInvoicePayload(BaseModel):
         description="Байгууллагаас үүсгэх давтагдашгүй нэхэмжлэлийн дугаар"
     )
     invoice_receiver_code: str = Field(
+        default="terminal",
         description="Байгууллагын нэхэмжлэхийг хүлээн авч буй"
-        "харилцагчийн дахин давтагдашгүй дугаар"
+        "харилцагчийн дахин давтагдашгүй дугаар",
     )
     invoice_description: str = Field(description="Нэхэмжлэлийн утга")
     amount: int = Field(description="Мөнгөн дүн")
@@ -65,5 +66,9 @@ class QPayClient(Singleton):
 
     def invoice_create(self, json: dict) -> Invoice:
         payload = CreateInvoicePayload(**json)
-        data = self._request("post", "invoice", json=payload.model_dump())
-        return Invoice(**data)
+        response = self._request("post", "invoice", json=payload.model_dump())
+        return Invoice(**response)
+
+    def invoice_cancel(self, invoice_id: str) -> bool:
+        response = self._request("delete", f"invoice/{invoice_id}")
+        return "error" not in response
