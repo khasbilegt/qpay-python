@@ -4,6 +4,22 @@ version = "0.0.1"
 description = "QPay v2 SDK client for Python projects"
 authors = ["khasbilegt <khasbilegt.ts@gmail.com>"]
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/khasbilegt/qpay-python"
+repository = "https://github.com/khasbilegt/qpay-python"
+keywords = ["python", "qpay", "sdk", "payment", "qr", "finance"]
+classifiers = [
+    "Framework :: Pydantic",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Build Tools",
+    "Typing :: Typed"
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
