@@ -6,7 +6,7 @@ authors = ["khasbilegt <khasbilegt.ts@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 requests = "^2.31.0"
 pydantic = "^2.7.0"
 
