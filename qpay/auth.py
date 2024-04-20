@@ -1,9 +1,12 @@
+import logging
 import threading
 from datetime import datetime, timedelta
-from typing import NamedTuple, Optional
+from typing import Callable, NamedTuple, Optional
 from urllib.parse import urljoin
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 class AccessToken(NamedTuple):
@@ -17,25 +20,38 @@ class RefreshToken(NamedTuple):
 
 
 class QPayAuth(requests.auth.AuthBase):
-    def __init__(self, host: str, username: str, password: str):
+    def __init__(
+        self,
+        host: str,
+        username: str,
+        password: str,
+        now: Optional[Callable[[], datetime]] = None,
+    ):
         self._access_token: Optional[AccessToken] = None
         self._refresh_token: Optional[RefreshToken] = None
         self._token_lock = threading.Lock()
-        self._host = urljoin(host, "auth")
+        self._host = urljoin(host, "auth/")
         self._username = username
         self._password = password
+        self._now = now
+
+    def _timestamp(self):
+        if self._now:
+            return self._now()
+        else:
+            return datetime.now()
 
     def _fetch_token(
         self, refresh_token: Optional[RefreshToken] = None
     ) -> tuple[AccessToken, RefreshToken]:
         try:
-            now = datetime.now()
+            now = self._timestamp()
             r = (
                 requests.post(
                     urljoin(self._host, "refresh"),
                     headers={"Authorization": f"Bearer {refresh_token.token}"},
                 )
-                if refresh_token and refresh_token.expires < now
+                if refresh_token and refresh_token.expires > now
                 else requests.post(
                     urljoin(self._host, "token"),
                     auth=(self._username, self._password),
@@ -51,14 +67,16 @@ class QPayAuth(requests.auth.AuthBase):
                 now + timedelta(seconds=token["refresh_expires_in"]),
             )
             return (access_token, refresh_token)
-        except requests.HTTPError as exception:
-            if refresh_token and exception.response.status_code == 401:
+        except requests.HTTPError as exc:
+            logger.exception(exc)
+            if refresh_token and exc.response.status_code == 401:
                 return self._fetch_token()
-            raise exception
+            raise exc
 
-    def _get_tokens(self) -> AccessToken:
-        with self.__token_lock:
-            now = datetime.now()
+    def _get_token(self) -> AccessToken:
+        with self._token_lock:
+            now = self._timestamp()
+
             if self._access_token and self._access_token.expires > now:
                 return self._access_token
 
@@ -69,5 +87,5 @@ class QPayAuth(requests.auth.AuthBase):
 
     def __call__(self, r):
         token = self._get_token()
-        r.headers["Authorization"] = f"{token.token_type} {token.token}"
+        r.headers["Authorization"] = f"Bearer {token.token}"
         return r

@@ -7,7 +7,7 @@ import requests
 from .auth import QPayAuth
 from .singleton import Singleton
 
-LOGGER = logging.getLogger("qpay")
+logger = logging.getLogger(__name__)
 
 
 class QPayClient(Singleton):
@@ -24,6 +24,6 @@ class QPayClient(Singleton):
             response.raise_for_status()
 
             return response.json()
-        except requests.RequestException as exception:
-            print(exception)
-            raise exception
+        except requests.RequestException as exc:
+            logger.exception(exc)
+            raise exc
