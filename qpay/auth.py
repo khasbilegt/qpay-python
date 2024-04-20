@@ -6,6 +6,8 @@ from urllib.parse import urljoin
 
 import requests
 
+from .exceptions import QPayException
+
 logger = logging.getLogger(__name__)
 
 
@@ -71,7 +73,7 @@ class QPayAuth(requests.auth.AuthBase):
             logger.exception(exc)
             if refresh_token and exc.response.status_code == 401:
                 return self._fetch_token()
-            raise exc
+            raise QPayException(request=exc.request, response=exc.response) from exc
 
     def _get_token(self) -> AccessToken:
         with self._token_lock:
