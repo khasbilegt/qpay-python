@@ -1,12 +1,31 @@
 [tool.poetry]
-name = "qpay"
+name = "qpay-python"
 version = "0.0.1"
 description = "QPay v2 SDK client for Python projects"
 authors = ["khasbilegt <khasbilegt.ts@gmail.com>"]
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/khasbilegt/qpay-python"
+repository = "https://github.com/khasbilegt/qpay-python"
+keywords = ["python", "qpay", "sdk", "payment", "qr", "finance"]
+classifiers = [
+    "Framework :: Pydantic",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Build Tools",
+    "Typing :: Typed"
+]
+packages = [
+    { include = "qpay"},
+]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 requests = "^2.31.0"
 pydantic = "^2.7.0"
 
@@ -17,6 +36,8 @@ pre-commit = "^3.5.0"
 pytest = "^7.4.3"
 requests-mock = "^1.12.1"
 pytest-cov = "^5.0.0"
+mypy = "^1.9.0"
+types-requests = "^2.31.0.20240406"
 
 
 
