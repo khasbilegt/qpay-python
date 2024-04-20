@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qpay"
-version = "1.0.0"
+version = "0.0.1"
 description = "QPay v2 SDK client for Python projects"
 authors = ["khasbilegt <khasbilegt.ts@gmail.com>"]
 readme = "README.md"
