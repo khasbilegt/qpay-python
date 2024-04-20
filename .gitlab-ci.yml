@@ -1,0 +1,6 @@
+include:
+  - project: aravt-tech/devops/pipelines
+    file: /python/poetry.yml
+
+variables:
+  POETRY_PUBLISH: 1
