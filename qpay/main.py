@@ -54,8 +54,8 @@ class Payment(BaseModel):
     # paid_by: Literal["P2P", "CARD"] = Field(
     #     description="Гүйлгээний төрөл P2P: Дансны гүйлгээ CARD: Картын гүйлгээ"
     # )
-    # object_type: Literal["MERCHANT", "INVOICE"] = Field(
-    #     description="Обьектын төрөл MERCHANT: Байгууллага INVOICE: Нэхэмжлэх QR: QR код"
+    # object_type: Literal["MERCHANT", "INVOICE", "QR"] = Field(
+    #     description="Обьектын төрөл"
     # )
     # object_id: str = Field(
     #     description="Обьектын төрөл INVOICE үед нэхэмлэхийн код (invoice_code)"
