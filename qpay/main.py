@@ -1,9 +1,11 @@
 import logging
+from datetime import datetime
+from decimal import Decimal
 from typing import Literal
 from urllib.parse import urljoin
 
 import requests
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 from .auth import QPayAuth
 from .exceptions import QPayException
@@ -18,12 +20,47 @@ class Invoice(BaseModel):
         description: str = Field(description="Утга")
         link: str = Field(description="Холбоос линк")
 
-    invoice_id: str = Field(description="Нэхэмжлэхийн дугаар")
+    id: str = Field(alias="invoice_id", description="Нэхэмжлэхийн дугаар")
     qr_text: str = Field(description="Данс болон картын гүйлгээ дэмжих QR утга")
     qr_image: str = Field(description="QPay лого голдоо агуулсан base64 зурган QR код")
     urls: list[URL] = Field(
         description="Аппликейшнээс банкны аппликейшнруу үсрэх Deeplink"
     )
+
+
+class Payment(BaseModel):
+    id: str = Field(alias="payment_id", description="QPay-ээс үүссэн гүйлгээний дугаар")
+    date: datetime = Field(alias="payment_date", description="Гүйлгээний огноо")
+    payment_status: Literal["NEW", "FAILED", "PAID", "REFUNDED"] = Field(
+        description="Гүйлгээ төлөв NEW: Гүйлгээ үүсгэгдсэн"
+        "FAILED: Гүйлгээ амжилтгүй"
+        "PAID: Төлөгдсөн"
+        "REFUNDED: Гүйлгээ буцаагдсан"
+    )
+    fee: Decimal = Field(alias="payment_fee", description="Шимтгэлийн дүн")
+    amount: Decimal = Field(alias="payment_amount", description="Гүйлгээний үнийн дүн")
+    currency: Literal["MNT"] = Field(
+        alias="payment_currency", description="Гүйлгээний валют"
+    )
+    wallet: str = Field(
+        alias="payment_wallet", description="Гүйлгээ хийсэн воллетийн дугаар"
+    )
+    transaction_type: Literal["P2P", "CARD"] = Field(
+        description="Гүйлгээний төрөл P2P: Дансны гүйлгээ CARD: Картын гүйлгээ"
+    )
+    # payment_name: str = Field(description="Төлбөрийн нэр: Юнивишн")
+    # payment_description: str = Field(description="Гүйлгээний утга: Юнивишн төлбөр")
+    # qr_code: str = Field(description="Гүйлгээнд ашиглагдсан QR код")
+    # paid_by: Literal["P2P", "CARD"] = Field(
+    #     description="Гүйлгээний төрөл P2P: Дансны гүйлгээ CARD: Картын гүйлгээ"
+    # )
+    # object_type: Literal["MERCHANT", "INVOICE"] = Field(
+    #     description="Обьектын төрөл MERCHANT: Байгууллага INVOICE: Нэхэмжлэх QR: QR код"
+    # )
+    # object_id: str = Field(
+    #     description="Обьектын төрөл INVOICE үед нэхэмлэхийн код (invoice_code)"
+    #     "Обьектын төрөл QR үед QR код"
+    # )
 
 
 class CreateInvoicePayload(BaseModel):
@@ -37,11 +74,15 @@ class CreateInvoicePayload(BaseModel):
         "харилцагчийн дахин давтагдашгүй дугаар",
     )
     invoice_description: str = Field(description="Нэхэмжлэлийн утга")
-    amount: int = Field(description="Мөнгөн дүн")
+    amount: Decimal = Field(description="Мөнгөн дүн")
     callback_url: str = Field(
         description="Төлбөр төлсөгдсөн эсэх талаар мэдэгдэл авах URL"
     )
     #
+
+    @field_serializer("amount")
+    def serialize_amount(self, amount: Decimal, _info):
+        return str(amount)
 
 
 class QPayClient(Singleton):
@@ -72,3 +113,11 @@ class QPayClient(Singleton):
     def invoice_cancel(self, invoice_id: str) -> bool:
         response = self._request("delete", f"invoice/{invoice_id}")
         return "error" not in response
+
+    def payment_check(self, invoice_id: str) -> list[Payment]:
+        response = self._request(
+            "post",
+            "payment/check",
+            json={"object_type": "INVOICE", "object_id": invoice_id},
+        )
+        return [Payment(**payment) for payment in response["rows"]]
