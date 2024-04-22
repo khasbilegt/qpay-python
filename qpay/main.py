@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from decimal import Decimal
 from typing import Literal
 from urllib.parse import urljoin
@@ -30,14 +29,13 @@ class Invoice(BaseModel):
 
 class Payment(BaseModel):
     id: str = Field(alias="payment_id", description="QPay-ээс үүссэн гүйлгээний дугаар")
-    date: datetime = Field(alias="payment_date", description="Гүйлгээний огноо")
-    payment_status: Literal["NEW", "FAILED", "PAID", "REFUNDED"] = Field(
+    status: Literal["NEW", "FAILED", "PAID", "REFUNDED"] = Field(
+        alias="payment_status",
         description="Гүйлгээ төлөв NEW: Гүйлгээ үүсгэгдсэн"
         "FAILED: Гүйлгээ амжилтгүй"
         "PAID: Төлөгдсөн"
-        "REFUNDED: Гүйлгээ буцаагдсан"
+        "REFUNDED: Гүйлгээ буцаагдсан",
     )
-    fee: Decimal = Field(alias="payment_fee", description="Шимтгэлийн дүн")
     amount: Decimal = Field(alias="payment_amount", description="Гүйлгээний үнийн дүн")
     currency: Literal["MNT"] = Field(
         alias="payment_currency", description="Гүйлгээний валют"
@@ -45,22 +43,10 @@ class Payment(BaseModel):
     wallet: str = Field(
         alias="payment_wallet", description="Гүйлгээ хийсэн воллетийн дугаар"
     )
-    transaction_type: Literal["P2P", "CARD"] = Field(
-        description="Гүйлгээний төрөл P2P: Дансны гүйлгээ CARD: Картын гүйлгээ"
+    type: Literal["P2P", "CARD"] = Field(
+        alias="payment_type",
+        description="Гүйлгээний төрөл P2P: Дансны гүйлгээ CARD: Картын гүйлгээ",
     )
-    # payment_name: str = Field(description="Төлбөрийн нэр: Юнивишн")
-    # payment_description: str = Field(description="Гүйлгээний утга: Юнивишн төлбөр")
-    # qr_code: str = Field(description="Гүйлгээнд ашиглагдсан QR код")
-    # paid_by: Literal["P2P", "CARD"] = Field(
-    #     description="Гүйлгээний төрөл P2P: Дансны гүйлгээ CARD: Картын гүйлгээ"
-    # )
-    # object_type: Literal["MERCHANT", "INVOICE", "QR"] = Field(
-    #     description="Обьектын төрөл"
-    # )
-    # object_id: str = Field(
-    #     description="Обьектын төрөл INVOICE үед нэхэмлэхийн код (invoice_code)"
-    #     "Обьектын төрөл QR үед QR код"
-    # )
 
 
 class CreateInvoicePayload(BaseModel):
@@ -114,10 +100,13 @@ class QPayClient(Singleton):
         response = self._request("delete", f"invoice/{invoice_id}")
         return "error" not in response
 
-    def payment_check(self, invoice_id: str) -> list[Payment]:
+    def payment_check(self, invoice_id: str) -> bool:
         response = self._request(
             "post",
             "payment/check",
             json={"object_type": "INVOICE", "object_id": invoice_id},
         )
-        return [Payment(**payment) for payment in response["rows"]]
+
+        if (rows := response["rows"]) and (len(rows) == 1) and (payment := rows[0]):
+            return payment["payment_status"] == "PAID"
+        return False
