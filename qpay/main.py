@@ -36,7 +36,6 @@ class Payment(BaseModel):
         "PAID: Төлөгдсөн"
         "REFUNDED: Гүйлгээ буцаагдсан",
     )
-    # fee: Decimal = Field(alias="trx_fee", description="Шимтгэлийн дүн")
     amount: Decimal = Field(alias="payment_amount", description="Гүйлгээний үнийн дүн")
     currency: Literal["MNT"] = Field(
         alias="payment_currency", description="Гүйлгээний валют"
