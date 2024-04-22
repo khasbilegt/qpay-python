@@ -9,4 +9,4 @@ repos:
     hooks:
       - id: mypy
         args: ["--explicit-package-bases"]
-        additional_dependencies: [types-requests, pydantic]
+        additional_dependencies: [types-requests, pydantic, pytest==7.4.4]

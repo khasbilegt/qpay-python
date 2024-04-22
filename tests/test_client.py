@@ -111,22 +111,40 @@ def test_invoice_cancel(requests_mock, client):
 def test_payment_check(requests_mock, client):
     invoice_id = uuid.uuid4()
     payment = {
-        "payment_id": "593744473409193",
+        "payment_id": "810154047944960",
         "payment_status": "PAID",
-        "payment_date": "2020-10-19T08:58:46.641Z",
-        "payment_fee": "1.00",
-        "payment_amount": "100.00",
+        "payment_amount": "150.50",
+        "trx_fee": "0.00",
         "payment_currency": "MNT",
-        "payment_wallet": "0fc9b71c-cd87-4ffd-9cac-2279ebd9deb0",
-        "transaction_type": "P2P",
+        "payment_wallet": "Хас банк апп",
+        "payment_type": "P2P",
+        "next_payment_date": None,
+        "next_payment_datetime": None,
+        "card_transactions": [],
+        "p2p_transactions": [
+            {
+                "id": "944910630240374",
+                "transaction_bank_code": "320000",
+                "account_bank_code": "340000",
+                "account_bank_name": "Төрийн банк",
+                "account_number": "102200004144",
+                "status": "SUCCESS",
+                "amount": "149.00",
+                "currency": "MNT",
+                "settlement_status": "SETTLED",
+            }
+        ],
     }
     requests_mock.post(
         urljoin(client._host, "payment/check"),
         [
-            {"json": {"count": 0, "rows": []}, "status_code": 200},
-            {"json": {"count": 1, "rows": [payment]}, "status_code": 200},
+            {"json": {"count": 0, "paid_amount": 0, "rows": []}, "status_code": 200},
+            {
+                "json": {"count": 1, "paid_amount": 150.5, "rows": [payment]},
+                "status_code": 200,
+            },
         ],
     )
 
-    assert len(client.payment_check(invoice_id=str(invoice_id))) == 0
-    assert len(client.payment_check(invoice_id=str(invoice_id))) == 1
+    assert client.payment_check(invoice_id=str(invoice_id)) is False
+    assert client.payment_check(invoice_id=str(invoice_id)) is True
