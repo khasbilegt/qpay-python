@@ -17,11 +17,16 @@ class Invoice(BaseModel):
     class URL(BaseModel):
         name: str = Field(description="Банкны нэр")
         description: str = Field(description="Утга")
+        logo: str = Field(description="Тухайн банкны лого")
         link: str = Field(description="Холбоос линк")
 
     id: str = Field(alias="invoice_id", description="Нэхэмжлэхийн дугаар")
     qr_text: str = Field(description="Данс болон картын гүйлгээ дэмжих QR утга")
     qr_image: str = Field(description="QPay лого голдоо агуулсан base64 зурган QR код")
+    short_url: str = Field(
+        alias="qPay_shortUrl",
+        description="QPay богино URL /Мессеж илгээхэд ашиглаж болно/",
+    )
     urls: list[URL] = Field(
         description="Аппликейшнээс банкны аппликейшнруу үсрэх Deeplink"
     )

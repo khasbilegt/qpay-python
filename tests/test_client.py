@@ -44,16 +44,19 @@ def test_invoice_create(requests_mock, client):
         "invoice_id": "00f94137-66fd-4d90-b2b2-8225c1b4ed2d",
         "qr_text": "QR_TEXT",
         "qr_image": "QR_IMAGE",
+        "qPay_shortUrl": "short_url",
         "urls": [
             {
                 "name": "Khan bank",
                 "description": "Хаан банк",
                 "link": "khanbank://q?qPay_QRcode=QR_DATA",
+                "logo": "https://qpay.mn/q/logo/khanbank.png",
             },
             {
                 "name": "State bank",
                 "description": "Төрийн банк",
                 "link": "statebank://q?qPay_QRcode=QR_DATA",
+                "logo": "https://qpay.mn/q/logo/state_3.png",
             },
         ],
     }
