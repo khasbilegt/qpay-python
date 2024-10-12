@@ -93,7 +93,9 @@ class QPayClient(Singleton):
         except requests.HTTPError as exc:
             logger.exception(exc)
             raise QPayException(
-                exc.response.json(), request=exc.request, response=exc.response
+                f"Error: [{exc.response.status_code}] {method.capitalize()} - {path}",
+                request=exc.request,
+                response=exc.response,
             ) from exc
 
     def invoice_create(self, json: dict) -> Invoice:
