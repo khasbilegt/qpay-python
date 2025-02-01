@@ -33,7 +33,7 @@
 ```py
 import qpay import QPayClient
 
-client = QPayClient(host="https://merchant.qpay.mn/v2/", username="MERCHANT_USERNAME", password="MERCHANT_PASSWORD")
+client = QPayClient.instance(host="https://merchant.qpay.mn/v2/", username="MERCHANT_USERNAME", password="MERCHANT_PASSWORD")
 
 ...
 ```
